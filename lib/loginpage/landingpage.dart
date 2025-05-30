@@ -72,9 +72,8 @@ class _LandingPageState extends State<LandingPage> {
               elevation: 3.0,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
-                  imageUrl:
-                     "https://lnmiit.ac.in/wp-content/uploads/2023/06/LNMIIT-VIEW.jpg",
+                child: Image.asset(
+                  "assets/images/image.png",
 
                   height:
                       MediaQuery.of(context).size.height /
