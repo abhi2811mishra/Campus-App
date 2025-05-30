@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+
+import 'package:campusapp/loginpage/loginpage.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {
@@ -93,7 +94,7 @@ class _LandingPageState extends State<LandingPage> {
                 ),
                 children: [
                   TextSpan(text: "Welcome to "),
-                  TextSpan(text: "Campus", style: TextStyle(color: Colors.green)),
+                  TextSpan(text: "Campus ", style: TextStyle(color: Colors.green)),
                   TextSpan(text: "App", style: TextStyle(color: Colors.blue)),
                 ],
               ),
@@ -112,7 +113,7 @@ class _LandingPageState extends State<LandingPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Loginpage()),
+            MaterialPageRoute(builder: (context) => LoginPage()),
           );
         },
         backgroundColor: Colors.blue,
@@ -122,22 +123,4 @@ class _LandingPageState extends State<LandingPage> {
   }
 }
 
-class Loginpage extends StatelessWidget {
-  const Loginpage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Login Page"),
-        centerTitle: true,
-        elevation: 0.0,
-      ),
-      body: Center(
-        child: Text(
-          "Login Page",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-}
+
