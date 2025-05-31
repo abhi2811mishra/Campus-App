@@ -1,3 +1,5 @@
+import 'package:campusapp/loginpage/auth_service.dart';
+import 'package:campusapp/loginpage/signuppage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -103,9 +105,10 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     super.dispose();
   }
-
+  
   @override
   Widget build(BuildContext context) {
+     final authService = AuthService();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -179,30 +182,38 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton.icon(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.white,
-    foregroundColor: Colors.black,
-    minimumSize: const Size(double.infinity, 50),
-    side: const BorderSide(color: Colors.grey),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  icon: Image.asset(
-    'assets/images/image1.png',
-    height: 24,
-  ),
-  label: const Flexible(
-    child: Text(
-      'Sign in with Google',
-      overflow: TextOverflow.ellipsis,
-    ),
-  ),
-  onPressed: signInWithGoogle,
-),
+                                 style: ElevatedButton.styleFrom(
+                                 backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                                minimumSize: const Size(double.infinity, 50),
+                                side: const BorderSide(color: Colors.grey),
+                                  shape: RoundedRectangleBorder(
+                                   borderRadius: BorderRadius.circular(12),
+                                    ),
+                               ),
+                                  icon: Image.asset(
+                                  'assets/images/image1.png',
+                                      height: 24,
+                                ),
+                            label: const Flexible(
+                              child: Text(
+                            'Sign in with Google',
+                             overflow: TextOverflow.ellipsis,
+                              ),
+                             ),
+                             onPressed: () async {
+                final user = await authService.signInWithGoogle();
+                if (user != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Home()),
+                  );
+                }
+              },
+                              ),
 
                           ],
-                        ),
+                         ),
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
@@ -228,17 +239,6 @@ class _LoginPageState extends State<LoginPage> {
 
 
 
-class SignUpPage extends StatelessWidget {
-  const SignUpPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up")),
-      body: const Center(child: Text("Sign Up Page")),
-    );
-  }
-}
 
 
 
