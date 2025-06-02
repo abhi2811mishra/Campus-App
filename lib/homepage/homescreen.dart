@@ -1,9 +1,15 @@
+import 'package:campusapp/homepage/pages/profile.dart';
+import 'package:campusapp/homepage/pages/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:campusapp/loginpage/loginpage.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
+  
+  
+  
+  
 
   void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
@@ -18,9 +24,7 @@ class Home extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Campus App Home'),
-      ),
+      appBar: AppBar(title: const Text('Campus App Home')),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -93,7 +97,12 @@ class Home extends StatelessWidget {
                     icon: Icons.person,
                     label: 'Profile',
                     onTap: () {
-                      // Navigate to profile screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      ); // Navigate to profile screen
                     },
                   ),
                   _buildTile(
@@ -101,6 +110,15 @@ class Home extends StatelessWidget {
                     icon: Icons.settings,
                     label: 'Settings',
                     onTap: () {
+                     Navigator.push(
+                            context,
+                         MaterialPageRoute(
+                            builder: (context) => SettingsPage(
+                              // Replace with actual dark mode state
+                              ),
+                          ),
+                      );
+
                       // Navigate to settings screen
                     },
                   ),
@@ -113,13 +131,26 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget _buildTile(BuildContext context,
-      {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildTile(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(16),
@@ -128,11 +159,13 @@ class Home extends StatelessWidget {
           children: [
             Icon(icon, size: 48, color: Colors.blue),
             const SizedBox(height: 12),
-            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
           ],
         ),
       ),
     );
   }
 }
-
