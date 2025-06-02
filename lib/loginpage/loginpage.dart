@@ -1,3 +1,4 @@
+import 'package:campusapp/homepage/homescreen.dart';
 import 'package:campusapp/loginpage/auth_service.dart';
 import 'package:campusapp/loginpage/signuppage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -243,14 +244,4 @@ class _LoginPageState extends State<LoginPage> {
 
 
 
-class Home extends StatelessWidget {
-  const Home({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
-      body: const Center(child: Text("Welcome to the Home Page!")),
-    );
-  }
-} 
