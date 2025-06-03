@@ -24,7 +24,32 @@ class Home extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Campus App Home')),
+      appBar: AppBar(
+                 backgroundColor: Colors.white,
+                         elevation: 1,
+                       centerTitle: true,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+              "Campus",
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+                fontSize: 25
+              ),
+            ),
+            SizedBox(width: 5),
+            Text(
+              "App",
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold,fontSize: 25),
+            ),
+                      ],
+                    ),
+                      
+                       
+      ),
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
