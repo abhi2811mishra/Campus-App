@@ -1,3 +1,4 @@
+
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -130,6 +131,7 @@ class Home extends StatelessWidget {
                     icon: Icons.map,
                     label: 'Campus Map',
                     onTap: () {
+                      
                       // Navigate to notifications screen
                     },
                   ),
