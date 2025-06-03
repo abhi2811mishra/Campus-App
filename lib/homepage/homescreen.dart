@@ -119,6 +119,54 @@ class Home extends StatelessWidget {
                   ),
                   _buildTile(
                     context,
+                    icon: Icons.feedback,
+                    label: 'Feedback',
+                    onTap: () {
+                      // Navigate to events screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
+                    icon: Icons.map,
+                    label: 'Campus Map',
+                    onTap: () {
+                      // Navigate to notifications screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
+                    icon: Icons.info_outline,
+                    label: 'Digital ID',
+                    onTap: () {
+                      // Navigate to notifications screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
+                    icon: Icons.foundation,
+                    label: 'Lost & Found',
+                    onTap: () {
+                      // Navigate to notifications screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
+                    icon: Icons.bus_alert,
+                    label: 'Transport Scheduler',
+                    onTap: () {
+                      // Navigate to notifications screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
+                    icon: Icons.build_circle,
+                    label: ' Maintenance Tracker',
+                    onTap: () {
+                      // Navigate to notifications screen
+                    },
+                  ),
+                  _buildTile(
+                    context,
                     icon: Icons.person,
                     label: 'Profile',
                     onTap: () {
