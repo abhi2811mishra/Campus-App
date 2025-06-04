@@ -1,4 +1,5 @@
 
+import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -131,7 +132,14 @@ class Home extends StatelessWidget {
                     icon: Icons.map,
                     label: 'Campus Map',
                     onTap: () {
-                      
+                       Navigator.push(
+                            context,
+                         MaterialPageRoute(
+                            builder: (context) => CampusMapPage(
+                              // Replace with actual dark mode state
+                              ),
+                          ),
+                      );
                       // Navigate to notifications screen
                     },
                   ),
