@@ -30,7 +30,7 @@ class _EventListPageState extends State<EventListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Community Events',
+        title: Text('College Events',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.deepPurple,
       ),
@@ -40,50 +40,49 @@ class _EventListPageState extends State<EventListPage> {
               itemCount: events.length,
               itemBuilder: (context, index) {
                 final event = events[index];
-                return Card(
-                 margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                      child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                        Text(
-                        event['title']!,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                       SizedBox(height: 6),
-                       Text('${event['date']} • ${event['time']}'),
-                        SizedBox(height: 6),
-                           Row(
-                         children: [
-                           Icon(Icons.location_on, color: Colors.green, size: 18),
-                           SizedBox(width: 4),
-                           Expanded(
-                              child: Text(
-                              event['location']!,
-                              style: TextStyle(color: Colors.grey[700]),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 5,),
-                             ),
-                           ],
-                        ),
+               return Card(
+  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+  child: Padding(
+    padding: const EdgeInsets.all(12.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                event['title']!,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 6),
+              Text('${event['date']} • ${event['time']}'),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.green, size: 18),
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      event['location']!,
+                      style: TextStyle(color: Colors.grey[800]),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 6),
               Text(event['description']!),
-                       ],
-                     ),
-                     ),
-                               IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => removeEvent(index),
-                                  ),
-                                  ],
-                              ),
-                            ),
-                        );
+            ],
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.delete, color: Colors.red),
+          onPressed: () => removeEvent(index),
+        ),
+      ],
+    ),
+  ),
+);
 
               },
             ),
@@ -94,7 +93,7 @@ class _EventListPageState extends State<EventListPage> {
             builder: (_) => AddEventPage(onAddEvent: addNewEvent),
           ),
         ),
-        child: Icon(Icons.add, color: Colors.white, size: 30),
+        child: Icon(Icons.add, size: 30, color: Colors.white),
         backgroundColor: Colors.deepPurple,
       ),
     );
