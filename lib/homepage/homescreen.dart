@@ -1,4 +1,6 @@
 
+
+import 'package:campusapp/homepage/pages/event_main.dart';
 import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';
@@ -116,6 +118,13 @@ class Home extends StatelessWidget {
                     icon: Icons.event,
                     label: 'Events',
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>  EventListPage(),
+                        ),
+                      );
+                     
                       // Navigate to events screen
                     },
                   ),
