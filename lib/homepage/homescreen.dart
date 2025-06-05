@@ -76,8 +76,12 @@ class Home extends StatelessWidget {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                // Optional: Add profile screen navigation here
-                Navigator.pop(context);
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      ); 
               },
             ),
             const Divider(),
