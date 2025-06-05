@@ -1,6 +1,8 @@
-import 'package:campusapp/loginpage/loginpage.dart'; // <-- Make sure this is your login screen import
-import 'package:flutter/material.dart';
+
+import 'package:campusapp/loginpage/loginpage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,25 +13,67 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final User? user = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool isEditing = false;
+  bool isLoading = true;
 
-  TextEditingController nameController = TextEditingController(text: 'John Doe');
-  TextEditingController phoneController = TextEditingController(text: '9876543210');
-  TextEditingController rollController = TextEditingController(text: 'CAMP12345');
-  TextEditingController departmentController = TextEditingController(text: 'Computer Science');
-  TextEditingController campusController = TextEditingController(text: 'Main Campus');
+  late TextEditingController emailController;
+  late TextEditingController nameController;
+  late TextEditingController phoneController;
+  late TextEditingController rollController;
+  late TextEditingController departmentController;
+  late TextEditingController campusController;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      final doc = await _firestore.collection('users').doc(user?.uid).get();
+      final data = doc.data();
+
+      nameController = TextEditingController(text: data?['name'] ?? '');
+      emailController = TextEditingController(text: data?['email'] ?? '');
+      phoneController = TextEditingController(text: data?['phone'] ?? '');
+      rollController = TextEditingController(text: data?['roll'] ?? '');
+      departmentController = TextEditingController(text: data?['department'] ?? '');
+      campusController = TextEditingController(text: data?['campus'] ?? '');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to load profile: $e")),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   void toggleEdit() {
     setState(() => isEditing = !isEditing);
   }
 
-  void saveProfile() {
-    // Save logic (e.g., Firestore update) goes here
+  Future<void> saveProfile() async {
+    try {
+      await _firestore.collection('users').doc(user?.uid).update({
+        'name': nameController.text.trim(),
+        'phone': phoneController.text.trim(),
+        'roll': rollController.text.trim(),
+        'department': departmentController.text.trim(),
+        'campus': campusController.text.trim(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Profile updated")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Update failed: $e")),
+      );
+    }
     setState(() => isEditing = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile updated")),
-    );
   }
 
   void logout() async {
@@ -60,8 +104,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController =
-        TextEditingController(text: user?.email ?? 'Not available');
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

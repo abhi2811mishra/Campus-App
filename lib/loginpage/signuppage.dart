@@ -1,7 +1,6 @@
-import 'package:campusapp/loginpage/loginpage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -12,179 +11,119 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final rollController = TextEditingController();
+  final departmentController = TextEditingController();
+  final campusController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   bool isLoading = false;
   bool isPasswordHidden = true;
-  bool acceptTerms = false;
 
   Future<void> signUp() async {
-    String name = nameController.text.trim();
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final phone = phoneController.text.trim();
+    final roll = rollController.text.trim();
+    final dept = departmentController.text.trim();
+    final campus = campusController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      return _showError('Please fill all fields.');
+    if ([name, email, phone, roll, dept, campus, password, confirmPassword].any((e) => e.isEmpty)) {
+      return _showError('All fields are required.');
     }
     if (password != confirmPassword) {
       return _showError('Passwords do not match.');
     }
-    if (!acceptTerms) {
-      return _showError('You must accept the terms and conditions.');
-    }
 
     setState(() => isLoading = true);
-
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      await userCredential.user?.updateDisplayName(name);
+      final uid = userCredential.user!.uid;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+      await _firestore.collection('users').doc(uid).set({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'roll': roll,
+        'department': dept,
+        'campus': campus,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created! Please log in.')),
       );
+
+      Navigator.pop(context); // or push to LoginPage
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        _showError('Email already in use.');
-      } else if (e.code == 'weak-password') {
-        _showError('Weak password. Use 6+ characters.');
-      } else {
-        _showError('Error: ${e.message}');
-      }
+      _showError(e.message ?? 'Signup failed.');
     } finally {
       setState(() => isLoading = false);
     }
   }
 
-  Future<void> signInWithGoogle() async {
-    setState(() => isLoading = true);
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return; // User canceled
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
-    } catch (e) {
-      _showError("Google sign-up failed: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  Widget buildTextField(String label, TextEditingController controller, {bool isPassword = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword && isPasswordHidden,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(isPasswordHidden ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => isPasswordHidden = !isPasswordHidden),
+                )
+              : null,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Text('Sign Up', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 30),
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: isPasswordHidden,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(isPasswordHidden ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => isPasswordHidden = !isPasswordHidden),
-                      ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign Up')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            buildTextField('Full Name', nameController),
+            buildTextField('Email', emailController),
+            buildTextField('Phone', phoneController),
+            buildTextField('Roll No', rollController),
+            buildTextField('Department', departmentController),
+            buildTextField('Campus', campusController),
+            buildTextField('Password', passwordController, isPassword: true),
+            buildTextField('Confirm Password', confirmPasswordController, isPassword: true),
+            const SizedBox(height: 20),
+            isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: signUp,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
                     ),
+                    child: const Text('Create Account'),
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: confirmPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Confirm Password', border: OutlineInputBorder()),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: acceptTerms,
-                        onChanged: (val) => setState(() => acceptTerms = val ?? false),
-                      ),
-                      const Expanded(child: Text('I accept the Terms and Conditions')),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  isLoading
-                      ? const CircularProgressIndicator()
-                      : Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: signUp,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              child: const Text('Create Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              )
-                            ),
-                             SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: signInWithGoogle,
-                              icon: Image.asset('assets/images/image1.png', height: 24),
-                              label: const Text('Sign Up with Google'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black,
-                                minimumSize: const Size(double.infinity, 50),
-                                side: const BorderSide(color: Colors.grey),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ],
-                        ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
-                    },
-                    child: const Text('Already have an account? Login'),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          ],
         ),
       ),
     );

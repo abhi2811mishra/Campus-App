@@ -217,6 +217,16 @@ class Home extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child:Center(
+                child: Text(
+                  '© 2023 Campus App',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                ),
+              ),
+            ),
           ],
         ),
       ),
