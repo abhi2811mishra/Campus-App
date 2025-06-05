@@ -222,7 +222,7 @@ class Home extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 12),
               child:Center(
                 child: Text(
-                  '© 2023 Campus App',
+                  '© 2025 Campus App',
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
               ),
