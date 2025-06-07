@@ -61,7 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       applicationName: 'Campus App',
       applicationVersion: '1.0.0',
-      applicationLegalese: '© 2025 CampusApp Inc.',
+      applicationLegalese: 'Made by Abhinav Mishra',
     );
   }
 
