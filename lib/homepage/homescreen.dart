@@ -5,6 +5,7 @@ import 'package:campusapp/homepage/pages/event_main.dart';
 import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';
+import 'package:campusapp/homepage/pages/transport.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:campusapp/loginpage/loginpage.dart';
@@ -181,7 +182,10 @@ class Home extends StatelessWidget {
                     icon: Icons.bus_alert,
                     label: 'Transport Scheduler',
                     onTap: () {
-                      // Navigate to notifications screen
+                      Navigator.push(
+                         context,
+                          MaterialPageRoute(builder: (_) => ScheduleTabs()),
+                       );
                     },
                   ),
                   _buildTile(
