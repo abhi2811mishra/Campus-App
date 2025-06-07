@@ -1,5 +1,6 @@
 
 
+import 'package:campusapp/homepage/pages/ai_chatbot.dart';
 import 'package:campusapp/homepage/pages/event_main.dart';
 import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
@@ -158,10 +159,13 @@ class Home extends StatelessWidget {
                   ),
                   _buildTile(
                     context,
-                    icon: Icons.info_outline,
-                    label: 'Digital ID',
+                    icon: Icons.smart_toy_outlined,
+                    label: 'AI Chatbot',
                     onTap: () {
-                      // Navigate to notifications screen
+                       Navigator.push(
+                         context,
+                          MaterialPageRoute(builder: (_) => const  ChatBotPage()),
+                       );
                     },
                   ),
                   _buildTile(
