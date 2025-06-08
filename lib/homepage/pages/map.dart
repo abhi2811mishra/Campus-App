@@ -18,20 +18,12 @@ class _CampusMapPageState extends State<CampusMapPage> {
   bool _locationLoaded = false;
   // ignore: unused_field
   String _searchQuery = '';
+  String? _searchError;
 
   final List<Map<String, dynamic>> buildings = [
-    {
-      "name": "Library",
-      "location": LatLng(23.0221, 72.5710),
-    },
-    {
-      "name": "Admin Block",
-      "location": LatLng(23.0228, 72.5716),
-    },
-    {
-      "name": "Computer Lab",
-      "location": LatLng(23.0232, 72.5719),
-    },
+    {"name": "Library", "location": LatLng(23.0221, 72.5710)},
+    {"name": "Admin Block", "location": LatLng(23.0228, 72.5716)},
+    {"name": "Computer Lab", "location": LatLng(23.0232, 72.5719)},
   ];
 
   @override
@@ -57,7 +49,9 @@ class _CampusMapPageState extends State<CampusMapPage> {
         setState(() => _locationLoaded = true); // fallback
       }
     } else {
-      debugPrint('Permission denied');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location permission denied.")),
+      );
       setState(() => _locationLoaded = true); // fallback
     }
   }
@@ -74,6 +68,26 @@ class _CampusMapPageState extends State<CampusMapPage> {
     }
   }
 
+  void _handleSearch(String value) {
+    setState(() {
+      _searchQuery = value;
+      _searchError = null;
+    });
+
+    final match = buildings.firstWhere(
+      (b) => b["name"].toLowerCase().contains(value.toLowerCase()),
+      orElse: () => {},
+    );
+
+    if (match.isNotEmpty && match["location"] != null) {
+      _mapController.move(match["location"], 18);
+    } else {
+      setState(() {
+        _searchError = "No building found.";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,22 +98,25 @@ class _CampusMapPageState extends State<CampusMapPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search for a building...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (value) {
-                      setState(() => _searchQuery = value);
-                      final match = buildings.firstWhere(
-                        (b) => b["name"].toLowerCase().contains(value.toLowerCase()),
-                        orElse: () => {},
-                      );
-                      if (match.isNotEmpty) {
-                        _mapController.move(match["location"], 18);
-                      }
-                    },
+                  child: Column(
+                    children: [
+                      TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'Search for a building...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: _handleSearch,
+                      ),
+                      if (_searchError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            _searchError!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -108,57 +125,66 @@ class _CampusMapPageState extends State<CampusMapPage> {
                     options: MapOptions(
                       initialCenter: _currentLocation,
                       initialZoom: 17,
-                      interactionOptions: const InteractionOptions(
-                        flags: InteractiveFlag.all,
-                      ),
+                      interactionOptions:
+                          const InteractionOptions(flags: InteractiveFlag.all),
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'com.example.campusapp',
                       ),
                       MarkerLayer(
                         markers: [
-                          // Current location
                           Marker(
                             point: _currentLocation,
                             width: 40,
                             height: 40,
-                            child: const Icon(Icons.my_location, color: Colors.blue, size: 36),
+                            child: const Icon(Icons.my_location,
+                                color: Colors.blue, size: 36),
                           ),
-                          // Building markers
-                          ...buildings.map((b) => Marker(
-                                point: b['location'],
-                                width: 40,
-                                height: 40,
-                                child: GestureDetector(
-                                  onTap: () => showModalBottomSheet(
-                                    context: context,
-                                    builder: (_) => Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(b['name'],
-                                              style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold)),
-                                          const SizedBox(height: 8),
-                                          ElevatedButton.icon(
-                                            onPressed: () =>
-                                                _launchGoogleMaps(b['location']),
-                                            icon: const Icon(Icons.navigation),
-                                            label: const Text("Navigate"),
-                                          )
-                                        ],
-                                      ),
+                          ...buildings.map(
+                            (b) => Marker(
+                              point: b['location'],
+                              width: 40,
+                              height: 40,
+                              child: GestureDetector(
+                                onTap: () => showModalBottomSheet(
+                                  context: context,
+                                  builder: (_) => Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          b['name'],
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ElevatedButton.icon(
+                                          onPressed: () =>
+                                              _launchGoogleMaps(b['location']),
+                                          icon:
+                                              const Icon(Icons.navigation),
+                                          label: const Text("Navigate"),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                  child: const Icon(Icons.location_on,
-                                      color: Colors.red, size: 40),
                                 ),
-                              )),
+                                child: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],

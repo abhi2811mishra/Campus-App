@@ -2,6 +2,7 @@
 
 import 'package:campusapp/homepage/pages/ai_chatbot.dart';
 import 'package:campusapp/homepage/pages/event_main.dart';
+import 'package:campusapp/homepage/pages/feedback.dart';
 import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';
@@ -139,6 +140,12 @@ class Home extends StatelessWidget {
                     icon: Icons.feedback,
                     label: 'Feedback',
                     onTap: () {
+                       Navigator.push(
+                            context,
+                         MaterialPageRoute(
+                            builder: (context) => FeedbackPage(),
+                          ),
+                      );
                       // Navigate to events screen
                     },
                   ),
