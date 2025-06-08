@@ -57,7 +57,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
         SnackBar(content: Text('Feedback for $_selectedType submitted!')),
       );
 
-      // Clear all inputs after successful submission
       _rollNoController.clear();
       _nameController.clear();
       _gmailController.clear();
@@ -167,7 +166,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Star Rating Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) => _buildStar(index + 1)),
