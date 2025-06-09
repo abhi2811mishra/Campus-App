@@ -65,7 +65,19 @@ class _GoogleMapSearchPageState extends State<GoogleMapSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Google Map ')),
+      appBar: AppBar(title: Text('Google Map ',style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.lightBlueAccent,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.my_location, color: Colors.white, size: 30),
+            tooltip: 'Current Location',
+            onPressed: () {
+              _determinePosition();
+            },
+          ),
+        ],
+      
+      ),
       body: Stack(
         children: [
           GoogleMap(
