@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddEventPage extends StatefulWidget {
-  final Function(Map<String, String>) onAddEvent;
-
-  AddEventPage({required this.onAddEvent});
-
   @override
   _AddEventPageState createState() => _AddEventPageState();
 }
@@ -12,24 +9,68 @@ class AddEventPage extends StatefulWidget {
 class _AddEventPageState extends State<AddEventPage> {
   final _formKey = GlobalKey<FormState>();
   String title = '';
-  String date = '';
-  String time = '';
   String location = '';
   String description = '';
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
 
-  void submitEvent() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> pickDate() async {
+    final DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(Duration(days: 1)),
+      lastDate: DateTime(2100),
+    );
+    if (date != null) {
+      setState(() => selectedDate = date);
+    }
+  }
+
+  Future<void> pickTime() async {
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (time != null) {
+      setState(() => selectedTime = time);
+    }
+  }
+
+  Future<void> submitEvent() async {
+    if (_formKey.currentState!.validate() &&
+        selectedDate != null &&
+        selectedTime != null) {
       _formKey.currentState!.save();
 
-      widget.onAddEvent({
-        'title': title,
-        'date': date,
-        'time': time,
-        'location': location,
-        'description': description,
-      });
+      // Combine selectedDate and selectedTime
+      final fullDateTime = DateTime(
+        selectedDate!.year,
+        selectedDate!.month,
+        selectedDate!.day,
+        selectedTime!.hour,
+        selectedTime!.minute,
+      );
 
-      Navigator.pop(context); // Return to previous screen
+      try {
+        await FirebaseFirestore.instance.collection('events').add({
+          'title': title,
+          'date': fullDateTime, // Store as Timestamp
+          'time': selectedTime!.format(context),
+          'location': location,
+          'description': description,
+          'created_at': FieldValue.serverTimestamp(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Event added successfully')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add event')),
+        );
+      }
     }
   }
 
@@ -38,7 +79,7 @@ class _AddEventPageState extends State<AddEventPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Event',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
@@ -50,28 +91,36 @@ class _AddEventPageState extends State<AddEventPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Event Title'),
                 onSaved: (value) => title = value ?? '',
-                validator: (value) => value!.isEmpty ? 'Enter title' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Enter event title' : null,
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Date (e.g. June 15, 2025)'),
-                onSaved: (value) => date = value ?? '',
-                validator: (value) => value!.isEmpty ? 'Enter date' : null,
+              SizedBox(height: 10),
+              ListTile(
+                title: Text(selectedDate == null
+                    ? 'Pick Event Date'
+                    : 'Date: ${selectedDate!.toLocal().toString().split(' ')[0]}'),
+                trailing: Icon(Icons.calendar_today),
+                onTap: pickDate,
               ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Time (e.g. 10:00 AM - 4:00 PM)'),
-                onSaved: (value) => time = value ?? '',
-                validator: (value) => value!.isEmpty ? 'Enter time' : null,
+              ListTile(
+                title: Text(selectedTime == null
+                    ? 'Pick Event Time'
+                    : 'Time: ${selectedTime!.format(context)}'),
+                trailing: Icon(Icons.access_time),
+                onTap: pickTime,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Location'),
                 onSaved: (value) => location = value ?? '',
-                validator: (value) => value!.isEmpty ? 'Enter location' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Enter event location' : null,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
                 onSaved: (value) => description = value ?? '',
-                validator: (value) => value!.isEmpty ? 'Enter description' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Enter event description' : null,
+                maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -81,7 +130,7 @@ class _AddEventPageState extends State<AddEventPage> {
                   padding: EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Text('Submit Event',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],
           ),
