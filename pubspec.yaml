@@ -50,6 +50,10 @@ dependencies:
   geolocator: ^14.0.1
   flutter_typeahead: ^5.2.0
   intl: ^0.20.2
+  image_picker: ^1.1.2
+  firebase_storage: ^12.4.7
+  path: ^1.9.1
+
 
 dev_dependencies:
   flutter_test:

@@ -72,7 +72,9 @@ class _GoogleMapSearchPageState extends State<GoogleMapSearchPage> {
             icon: Icon(Icons.my_location, color: Colors.white, size: 30),
             tooltip: 'Current Location',
             onPressed: () {
-              _determinePosition();
+              _determinePosition(
+                
+              );
             },
           ),
         ],
