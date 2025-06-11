@@ -4,7 +4,6 @@ import 'package:campusapp/homepage/pages/add_item.dart';
 import 'package:campusapp/homepage/pages/ai_chatbot.dart';
 import 'package:campusapp/homepage/pages/event_main.dart';
 import 'package:campusapp/homepage/pages/feedback.dart';
-import 'package:campusapp/homepage/pages/lost_found.dart';
 import 'package:campusapp/homepage/pages/map.dart';
 import 'package:campusapp/homepage/pages/profile.dart';
 import 'package:campusapp/homepage/pages/settings.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -34,12 +36,45 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   Future<String?> _uploadImage(File file) async {
     try {
+      if (!await file.exists()) return null;
+      final fileSize = await file.length();
+      if (fileSize == 0 || fileSize > 32 * 1024 * 1024) return null;
+
       final id = Uuid().v4();
-      final ref = FirebaseStorage.instance.ref().child('item_images/$id.jpg');
-      await ref.putFile(file);
-      return await ref.getDownloadURL();
+      final ref = FirebaseStorage.instance.ref().child('items/$id.jpg');
+      final snapshot = await ref.putFile(file).timeout(
+        Duration(minutes: 2),
+        onTimeout: () {
+          throw Exception("Upload timeout");
+        },
+      );
+
+      if (snapshot.state == TaskState.success) {
+        return await ref.getDownloadURL();
+      } else {
+        return null;
+      }
     } catch (e) {
-      print("Image upload error: $e");
+      print("Upload error: $e");
+      return null;
+    }
+  }
+
+  Future<String?> _uploadImageAlternative(File file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final id = Uuid().v4();
+      final ref = FirebaseStorage.instance.ref('uploads/$id.jpg');
+      final snapshot = await ref.putData(
+        bytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      if (snapshot.state == TaskState.success) {
+        return await ref.getDownloadURL();
+      }
+      return null;
+    } catch (e) {
+      print("Alternative upload error: $e");
       return null;
     }
   }
@@ -47,16 +82,37 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
-
     setState(() => _loading = true);
 
-    String? imageUrl;
-    if (_image != null) {
-      imageUrl = await _uploadImage(_image!);
-    }
-
     try {
-      await FirebaseFirestore.instance.collection('items').add({
+      String? imageUrl;
+
+      if (_image != null) {
+        imageUrl = await _uploadImage(_image!);
+        if (imageUrl == null) {
+          imageUrl = await _uploadImageAlternative(_image!);
+        }
+
+        if (imageUrl == null) {
+          final proceed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Upload Failed'),
+              content: Text('Image upload failed. Continue without image?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel')),
+                TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Continue')),
+              ],
+            ),
+          );
+          if (proceed != true) {
+            setState(() => _loading = false);
+            return;
+          }
+        }
+      }
+
+      final itemData = {
         'type': _type,
         'itemName': itemName,
         'description': description,
@@ -64,14 +120,18 @@ class _AddItemScreenState extends State<AddItemScreen> {
         'rollNumber': rollNumber,
         'contact': contact,
         'email': email,
-        'imageUrl': imageUrl ?? '',
         'timestamp': FieldValue.serverTimestamp(),
-      });
+      };
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        itemData['imageUrl'] = imageUrl;
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Item added.')));
+      await FirebaseFirestore.instance.collection('items').add(itemData);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Item added successfully!')));
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _loading = false);
     }
@@ -103,29 +163,39 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Description'),
-                  onSaved: (val) => description = val!,
+                  onSaved: (val) => description = val ?? '',
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Owner Name'),
-                  onSaved: (val) => ownerName = val!,
+                  onSaved: (val) => ownerName = val ?? '',
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Roll Number'),
-                  onSaved: (val) => rollNumber = val!,
+                  onSaved: (val) => rollNumber = val ?? '',
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Contact'),
                   keyboardType: TextInputType.phone,
-                  onSaved: (val) => contact = val!,
+                  onSaved: (val) => contact = val ?? '',
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Email'),
                   keyboardType: TextInputType.emailAddress,
-                  onSaved: (val) => email = val!,
+                  onSaved: (val) => email = val ?? '',
                 ),
                 SizedBox(height: 20),
                 _image != null
-                    ? Image.file(_image!, height: 150)
+                    ? Column(
+                        children: [
+                          Image.file(_image!, height: 150),
+                          SizedBox(height: 10),
+                          TextButton.icon(
+                            icon: Icon(Icons.image),
+                            label: Text('Change Image'),
+                            onPressed: _pickImage,
+                          ),
+                        ],
+                      )
                     : TextButton.icon(
                         icon: Icon(Icons.image),
                         label: Text('Select Image (optional)'),
@@ -133,7 +203,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       ),
                 SizedBox(height: 20),
                 _loading
-                    ? CircularProgressIndicator()
+                    ? Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 10),
+                          Text('Uploading...'),
+                        ],
+                      )
                     : ElevatedButton(
                         onPressed: _submitForm,
                         child: Text('Submit'),
@@ -141,7 +217,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                           backgroundColor: Colors.green,
                           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                         ),
-                      )
+                      ),
               ],
             ),
           ),
