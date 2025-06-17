@@ -117,7 +117,9 @@ class _LandingPageState extends State<LandingPage> {
           );
         },
         backgroundColor: Colors.blue,
-        child: Icon(Icons.arrow_forward_ios),
+        child: Icon(Icons.arrow_forward_ios,
+          color: Colors.white,
+          size: 30,),
       ),
     );
   }
