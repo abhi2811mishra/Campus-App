@@ -25,6 +25,20 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isLoading = false;
   bool isPasswordHidden = true;
 
+  @override
+  void dispose() {
+    // Dispose controllers to avoid memory leaks
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    rollController.dispose();
+    departmentController.dispose();
+    campusController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   Future<void> signUp() async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
@@ -36,10 +50,12 @@ class _SignUpPageState extends State<SignUpPage> {
     final confirmPassword = confirmPasswordController.text.trim();
 
     if ([name, email, phone, roll, dept, campus, password, confirmPassword].any((e) => e.isEmpty)) {
-      return _showError('All fields are required.');
+      _showError('All fields are required.');
+      return;
     }
     if (password != confirmPassword) {
-      return _showError('Passwords do not match.');
+      _showError('Passwords do not match.');
+      return;
     }
 
     setState(() => isLoading = true);
@@ -62,33 +78,69 @@ class _SignUpPageState extends State<SignUpPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created! Please log in.')),
+        SnackBar(
+          content: const Text('Account created successfully! Please log in.',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          backgroundColor: Colors.white,
+        ),
       );
 
-      Navigator.pop(context); // or push to LoginPage
+      
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Signup failed.');
+      _showError(e.message ?? 'An unexpected error occurred during signup.');
     } finally {
       setState(() => isLoading = false);
     }
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.red[700], 
+        behavior: SnackBarBehavior.floating, 
+        margin: const EdgeInsets.all(10), 
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), 
+      ),
+    );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {bool isPassword = false}) {
+  Widget _buildTextField(String label, TextEditingController controller, {
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
         obscureText: isPassword && isPasswordHidden,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: TextStyle(color: Colors.grey[600]), 
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.9), 
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12), 
+            borderSide: BorderSide.none, 
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2), 
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300, width: 1), 
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           suffixIcon: isPassword
               ? IconButton(
-                  icon: Icon(isPasswordHidden ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                    isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey[600],
+                  ),
                   onPressed: () => setState(() => isPasswordHidden = !isPasswordHidden),
                 )
               : null,
@@ -100,30 +152,100 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            buildTextField('Full Name', nameController),
-            buildTextField('Email', emailController),
-            buildTextField('Phone', phoneController),
-            buildTextField('Roll No', rollController),
-            buildTextField('Department', departmentController),
-            buildTextField('Campus', campusController),
-            buildTextField('Password', passwordController, isPassword: true),
-            buildTextField('Confirm Password', confirmPasswordController, isPassword: true),
-            const SizedBox(height: 20),
-            isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: signUp,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+      appBar: AppBar(
+        centerTitle: true, 
+        automaticallyImplyLeading: true,   
+
+        title: const Text(
+         
+          'Create Your Account',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold, 
+          ),
+        ),
+        backgroundColor: Colors.blue.shade800, 
+        elevation: 0, 
+        iconTheme: const IconThemeData(color: Colors.white), 
+      ),
+      body: Container(
+        // Background Gradient
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.shade700,
+              Colors.lightBlue.shade300,
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24), 
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch, 
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                'Join the Campus Community!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(1, 1),
+                      blurRadius: 3.0,
+                      color: Colors.black.withOpacity(0.3),
                     ),
-                    child: const Text('Create Account'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              _buildTextField('Full Name', nameController),
+              _buildTextField('Email', emailController, keyboardType: TextInputType.emailAddress),
+              _buildTextField('Phone', phoneController, keyboardType: TextInputType.phone),
+              _buildTextField('Roll No', rollController),
+              _buildTextField('Department', departmentController),
+              _buildTextField('Campus', campusController),
+              _buildTextField('Password', passwordController, isPassword: true),
+              _buildTextField('Confirm Password', confirmPasswordController, isPassword: true),
+              const SizedBox(height: 30),
+              isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                  : ElevatedButton(
+                      onPressed: signUp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade600, 
+                        foregroundColor: Colors.white, 
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 5, 
+                        textStyle: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: const Text('Create Account'),
+                    ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Already have an account? Log In",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8), 
+                    fontSize: 16,
                   ),
-          ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
