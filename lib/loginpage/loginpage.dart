@@ -138,7 +138,10 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FlutterLogo(size: 80),
+                        const CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage('assets/images/logo.png'),
+                        ),
                         const SizedBox(height: 20),
                         const Text(
                           'Welcome Back',
