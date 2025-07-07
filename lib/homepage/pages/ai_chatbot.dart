@@ -17,7 +17,7 @@ class _ChatBotPageState extends State<ChatBotPage> with TickerProviderStateMixin
   
   // Free Groq API Configuration
   static const String _groqApiKey = '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'; // Replace with your free Groq API key
-  static const String _groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+  static const String _groqApiUrl = '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';
   
   // System prompt for LNMIIT context
   static const String _systemPrompt = '''You are LNMIIT Campus Assistant, a helpful AI chatbot for The LNM Institute of Information Technology (LNMIIT), Jaipur, Rajasthan, India. 
