@@ -50,7 +50,7 @@ Firebase CLI installed and configured
 Google Cloud Project with Billing Enabled (for Google Maps API Key and Firebase)
 
 1. Clone the repository
-git clone https://github.com/abhi2811mishra/Campus-App
+git clone https://github.com/abhi2811mishra/Campus-App  [https://drive.google.com/file/d/1t7OZyI-UIU3GDsBPxnI_ykUBYpYRwGsg/view?usp=drive_link]
 cd Campus-app
 
 2. Install Dependencies
@@ -160,4 +160,4 @@ For any questions or inquiries, please contact:
 Name: Abhinav Mishra 
 Gmail: abinavmishra61@gmail.com
 
-Project Link: https://github.com/abhi2811mishra/Campus-App
+Project Link: https://github.com/abhi2811mishra/Campus-App [https://drive.google.com/file/d/1t7OZyI-UIU3GDsBPxnI_ykUBYpYRwGsg/view?usp=drive_link]
