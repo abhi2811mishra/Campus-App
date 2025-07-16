@@ -16,8 +16,8 @@ class _ChatBotPageState extends State<ChatBotPage> with TickerProviderStateMixin
   bool _isTyping = false;
   
   // Free Groq API Configuration
-  static const String _groqApiKey = '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'; // Replace with your free Groq API key
-  static const String _groqApiUrl = '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';
+  static const String _groqApiKey = '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'; // Replace with your free Groq API key
+  static const String _groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions'; // Corrected Groq API URL
   
   // System prompt for LNMIIT context
   static const String _systemPrompt = '''You are LNMIIT Campus Assistant, a helpful AI chatbot for The LNM Institute of Information Technology (LNMIIT), Jaipur, Rajasthan, India. 
@@ -247,19 +247,19 @@ Always provide helpful, accurate information about LNMIIT campus facilities, aca
               children: [
                RichText(
                       text: TextSpan(
-                         style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                         children: const [
-                       TextSpan(
-                       text: 'Campus ',
-                       style: TextStyle(color: Colors.blueAccent),
+                        TextSpan(
+                        text: 'Campus ',
+                        style: TextStyle(color: Colors.blueAccent),
                         ),
-                       TextSpan(
+                        TextSpan(
                       text: 'Assistant',
                     style: TextStyle(color: Colors.green),
-                     ),
+                      ),
                       ],
-                   ),
-                ),
+                    ),
+                  ),
                 Text(
                   'LNMIIT Helper Bot',
                   style: TextStyle(
