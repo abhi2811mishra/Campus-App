@@ -50,8 +50,8 @@ Firebase CLI installed and configured
 Google Cloud Project with Billing Enabled (for Google Maps API Key and Firebase)
 
 1. Clone the repository
-git clone https://github.com/your-username/lnmiit-campus-app.git
-cd lnmiit-campus-app
+git clone https://github.com/abhi2811mishra/Campus-App
+cd Campus-app
 
 2. Install Dependencies
 flutter pub get
